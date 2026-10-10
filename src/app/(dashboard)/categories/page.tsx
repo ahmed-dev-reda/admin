@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tags, Pencil, Trash, X } from "lucide-react";
+import { Tags, Pencil, Trash, X, Loader, Loader2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -29,7 +29,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type Category = { id: string; name: string };
+type Category = { id: string; name: string; productCount: number };
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -94,14 +94,11 @@ export default function CategoriesPage() {
     setIsEditSubmitting(true);
     setError(null);
     try {
-      const res = await fetch(
-        `/api/categories?id=${editingCategory.id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: editingCategory.id, name: editName.trim() }),
-        },
-      );
+      const res = await fetch(`/api/categories?id=${editingCategory.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editingCategory.id, name: editName.trim() }),
+      });
       const json = await res.json().catch(() => null);
       if (!res.ok || !json?.success) {
         throw new Error(json?.error?.message ?? "Failed to update category");
@@ -149,7 +146,7 @@ export default function CategoriesPage() {
   };
 
   return (
-    <section className="space-y-6 pb-8 pt-2">
+    <section className="space-y-6 pb-8 pt-2 relative">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Categories</h1>
         <p className="text-muted-foreground text-sm mt-1">
@@ -185,7 +182,10 @@ export default function CategoriesPage() {
       </Card>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading categories…</p>
+        <div className="absolute -bottom-20 left-1/2">
+          <Loader2 className="animate-spin mx-auto text-center" />
+          Loading
+        </div>
       ) : categories.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-16 text-center">
           <div className="rounded-full bg-muted p-4">
@@ -200,15 +200,21 @@ export default function CategoriesPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12 text-center">ID</TableHead>
               <TableHead className="pl-6">Name</TableHead>
+              <TableHead className="w-20 text-center">Products</TableHead>
               <TableHead className="pr-6 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categories.map((category) => (
+            {categories.map((category, index) => (
               <TableRow key={category.id}>
+                <TableCell className="text-center">{index + 1}</TableCell>
                 <TableCell className="pl-6 font-medium">
                   {category.name}
+                </TableCell>
+                <TableCell className="text-center">
+                  {category.productCount}
                 </TableCell>
                 <TableCell className="pr-6">
                   <div className="flex items-center justify-end gap-1">

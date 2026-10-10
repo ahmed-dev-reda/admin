@@ -16,7 +16,6 @@ import { sidebarItems } from "@/data/sidebar";
 import { Plus, Settings } from "lucide-react";
 import Link from "next/link";
 import { LogoutButton } from "./logout-button";
-import { Button } from "../ui/button";
 import { signOutAction } from "@/actions/auth";
 
 export function AppSidebar() {
@@ -72,19 +71,9 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/settings">
-                <Settings />
-                <span>Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <form action={signOutAction}>
-                <LogoutButton />
-              </form>
-            </SidebarMenuButton>
+            <form action={signOutAction}>
+              <LogoutButton />
+            </form>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

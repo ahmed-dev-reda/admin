@@ -44,7 +44,7 @@ export default function NewDiscountPage() {
   };
 
   return (
-    <div className="space-y-6 pb-8 pt-2">
+    <div className="space-y-6 pb-8 pt-2 ">
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" asChild>
           <Link href="/discounts">
@@ -59,10 +59,12 @@ export default function NewDiscountPage() {
         </div>
       </div>
 
-      <Card className="max-w-2xl">
+      <Card>
         <CardHeader>
           <CardTitle>Discount Details</CardTitle>
-          <CardDescription>Fill in the details for the new discount.</CardDescription>
+          <CardDescription>
+            Fill in the details for the new discount.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -80,7 +82,7 @@ export default function NewDiscountPage() {
                 required
               />
             </div>
-            
+
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="type">Discount Type</Label>
@@ -120,11 +122,7 @@ export default function NewDiscountPage() {
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="expiresAt">Expiration Date (Optional)</Label>
-                <Input
-                  id="expiresAt"
-                  name="expiresAt"
-                  type="datetime-local"
-                />
+                <Input id="expiresAt" name="expiresAt" type="datetime-local" />
               </div>
               <div className="flex items-center space-x-2 pt-8">
                 <input
@@ -134,13 +132,20 @@ export default function NewDiscountPage() {
                   defaultChecked
                   className="size-4 rounded border-gray-300"
                 />
-                <Label htmlFor="active" className="cursor-pointer font-medium text-sm">
+                <Label
+                  htmlFor="active"
+                  className="cursor-pointer font-medium text-sm"
+                >
                   Active (can be used immediately)
                 </Label>
               </div>
             </div>
 
-            <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="w-full sm:w-auto"
+            >
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 size-4 animate-spin" />

@@ -188,8 +188,8 @@ export async function deleteProduct(id: string) {
 }
 
 export async function listCategories() {
-  const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
-  return categories.map((c) => ({ id: c.id, name: c.name }));
+  const categories = await prisma.category.findMany({ orderBy: { name: "asc" }, include: { _count: { select: { products: true } } } });
+  return categories.map((c) => ({ id: c.id, name: c.name, productCount: c._count.products }));
 }
 
 // kept for API compatibility
