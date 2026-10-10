@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { username } from "better-auth/plugins";
+import { nextCookies } from "better-auth/next-js";
 import { prisma } from "@/lib/prisma";
 
 export const auth = betterAuth({
@@ -22,5 +23,21 @@ export const auth = betterAuth({
   },
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
-  plugins: [username()],
+  plugins: [username(), nextCookies()],
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: true,
+      domain: process.env.AUTH_COOKIE_DOMAIN,
+    },
+  },
+  cookies: {
+    sessionToken: {
+      name: "better-auth.session_token",
+      attributes: {
+        sameSite: "none",
+        secure: true,
+        domain: process.env.AUTH_COOKIE_DOMAIN,
+      },
+    },
+  },
 });

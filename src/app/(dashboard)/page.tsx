@@ -4,6 +4,7 @@ import ChartAreaInteractive from "@/components/layout/dashboard/chart-area-inter
 import Cards from "@/components/layout/dashboard/cards";
 import TopProducts from "@/components/layout/dashboard/top-products";
 import RecentOrders from "@/components/layout/dashboard/recent-orders";
+import { Suspense } from "react";
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
@@ -25,8 +26,10 @@ export default function DashboardPage() {
 
       {/* ── Bottom Grid: Recent Orders + Top Products ───────────────────── */}
       <div className="grid gap-4 md:grid-cols-3">
-        <RecentOrders />
-        <TopProducts />
+        <Suspense fallback={<p>Loading ...</p>}>
+          <RecentOrders />
+          <TopProducts />
+        </Suspense>
       </div>
     </section>
   );

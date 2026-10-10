@@ -1,11 +1,17 @@
 "use client";
 
-import * as React from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tags } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tags, Pencil, Trash, X } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,28 +20,42 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type Category = { id: string; name: string };
 
 export default function CategoriesPage() {
-  const [categories, setCategories] = React.useState<Category[]>([]);
-  const [name, setName] = React.useState("");
-  const [error, setError] = React.useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [name, setName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const load = React.useCallback(() => {
+  // Edit state
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editName, setEditName] = useState("");
+  const [isEditSubmitting, setIsEditSubmitting] = useState(false);
+
+  const load = useCallback(() => {
     fetch("/api/categories", { cache: "no-store" })
       .then(async (res) => {
         const json = await res.json();
-        if (!res.ok || !json.success) throw new Error(json?.error?.message ?? "Failed to load");
+        if (!res.ok || !json.success)
+          throw new Error(json?.error?.message ?? "Failed to load");
         setCategories(json.data);
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"))
       .finally(() => setIsLoading(false));
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     load();
   }, [load]);
 
@@ -60,10 +80,72 @@ export default function CategoriesPage() {
       setName("");
       load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create category");
+      setError(
+        err instanceof Error ? err.message : "Failed to create category",
+      );
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editName.trim() || !editingCategory) return;
+    setIsEditSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `/api/categories?id=${editingCategory.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: editingCategory.id, name: editName.trim() }),
+        },
+      );
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error?.message ?? "Failed to update category");
+      }
+      setEditingCategory(null);
+      setEditName("");
+      load();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update category",
+      );
+    } finally {
+      setIsEditSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this category?")) return;
+    setError(null);
+    try {
+      const res = await fetch(`/api/categories?id=${id}`, {
+        method: "DELETE",
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error?.message ?? "Failed to delete category");
+      }
+      load();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to delete category",
+      );
+    }
+  };
+
+  const openEdit = (category: Category) => {
+    setEditingCategory(category);
+    setEditName(category.name);
+    setError(null);
+  };
+
+  const closeEdit = () => {
+    setEditingCategory(null);
+    setEditName("");
   };
 
   return (
@@ -75,10 +157,12 @@ export default function CategoriesPage() {
         </p>
       </div>
 
-      <Card className="max-w-xl">
+      <Card>
         <CardHeader>
           <CardTitle>New Category</CardTitle>
-          <CardDescription>Add a category to group your products.</CardDescription>
+          <CardDescription>
+            Add a category to group your products.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex items-end gap-3">
@@ -117,17 +201,83 @@ export default function CategoriesPage() {
           <TableHeader>
             <TableRow>
               <TableHead className="pl-6">Name</TableHead>
+              <TableHead className="pr-6 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {categories.map((category) => (
               <TableRow key={category.id}>
-                <TableCell className="pl-6 font-medium">{category.name}</TableCell>
+                <TableCell className="pl-6 font-medium">
+                  {category.name}
+                </TableCell>
+                <TableCell className="pr-6">
+                  <div className="flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8"
+                      onClick={() => openEdit(category)}
+                    >
+                      <Pencil className="size-4" />
+                      <span className="sr-only">Edit</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-destructive hover:text-destructive"
+                      onClick={() => handleDelete(category.id)}
+                    >
+                      <Trash className="size-4" />
+                      <span className="sr-only">Delete</span>
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
+
+      {/* Edit Dialog */}
+      <Dialog
+        open={editingCategory !== null}
+        onOpenChange={(open) => !open && closeEdit()}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Category</DialogTitle>
+            <DialogDescription>
+              Update the category name below.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEdit} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="editCategoryName">Name</Label>
+              <Input
+                id="editCategoryName"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Category name"
+                disabled={isEditSubmitting}
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeEdit}
+                disabled={isEditSubmitting}
+              >
+                <X className="mr-2 size-4" />
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isEditSubmitting}>
+                {isEditSubmitting ? "Saving…" : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
