@@ -23,7 +23,14 @@ export const createProductSchema = z.object({
   quantity: z.coerce.number().int().nonnegative("Quantity cannot be negative"),
   categoryId: z.string().min(1, "Category is required").optional(),
   category: z.string().trim().min(1).optional(), // category name fallback
-  imageUrl: z.string().url().optional().nullable(),
+  imageUrl: z
+    .string()
+    .trim()
+    .refine((val) => val === "" || /^https?:\/\//.test(val) || val.startsWith("/uploads/"), {
+      message: "Image must be a valid URL or upload path",
+    })
+    .optional()
+    .nullable(),
 });
 
 export const updateProductSchema = createProductSchema.partial();

@@ -35,14 +35,6 @@ type FormErrors = {
   image?: string;
 };
 
-const CATEGORIES = [
-  "Electronics",
-  "Clothing",
-  "Accessories",
-  "Home",
-  "Other",
-] as const;
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function validateForm(fields: {
@@ -142,9 +134,7 @@ export default function AddProductPage() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
 
-  const [categoryOptions, setCategoryOptions] = React.useState<string[]>([
-    ...CATEGORIES,
-  ]);
+  const [categoryOptions, setCategoryOptions] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     fetch("/api/categories", { cache: "no-store" })
@@ -152,13 +142,11 @@ export default function AddProductPage() {
         const json = await res.json();
         if (json?.success && Array.isArray(json.data)) {
           const names = json.data.map((c: { name: string }) => c.name);
-          setCategoryOptions(Array.from(new Set([...CATEGORIES, ...names])));
+          setCategoryOptions(Array.from(new Set([...names])));
         }
       })
       .catch(() => {});
   }, []);
-
-  const hasErrors = Object.keys(errors).length > 0;
 
   const resetForm = () => {
     setName("");
@@ -195,6 +183,25 @@ export default function AddProductPage() {
       const categoryLabel = categoryOptions.find(
         (c) => c.toLowerCase() === category,
       );
+
+      // Upload the image first (if provided)
+      let imageUrl: string | null = null;
+      if (image) {
+        const uploadData = new FormData();
+        uploadData.append("file", image);
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadData,
+        });
+        const uploadJson = await uploadRes.json().catch(() => null);
+        if (!uploadRes.ok || !uploadJson?.success) {
+          throw new Error(
+            uploadJson?.error?.message ?? "Failed to upload image",
+          );
+        }
+        imageUrl = uploadJson.data.url;
+      }
+
       const res = await fetch("/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -204,6 +211,7 @@ export default function AddProductPage() {
           price: Number(price),
           quantity: Number(quantity),
           category: categoryLabel ?? category,
+          imageUrl,
         }),
       });
       const json = await res.json().catch(() => null);

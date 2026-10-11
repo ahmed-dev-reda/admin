@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 const PUBLIC_PAGE_PREFIXES = ["/auth"];
-const PUBLIC_API_PREFIXES = ["/api/auth"];
+const PUBLIC_API_PREFIXES = ["/api/auth", "/api/store"];
 
 function isPublicAsset(pathname: string) {
   return (
