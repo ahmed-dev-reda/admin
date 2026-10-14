@@ -313,7 +313,7 @@ export default function AddProductPage() {
                     {/* Price */}
                     <div className="space-y-1.5">
                       <Label htmlFor="productPrice">
-                        Price ($) <span className="text-destructive">*</span>
+                        Price (EGP) <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="productPrice"

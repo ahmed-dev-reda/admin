@@ -1,8 +1,21 @@
 "use client";
 
-import { Card, CardHeader, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { formatEGP } from "@/lib/format";
 import * as React from "react";
-import { DollarSign, ShoppingCart, Package, Users, TrendingUp, TrendingDown } from "lucide-react";
+import {
+  DollarSign,
+  ShoppingCart,
+  Package,
+  Users,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 
 const iconMap = {
   totalRevenue: DollarSign,
@@ -36,9 +49,12 @@ export default function Cards() {
     {
       id: "total-sales",
       title: "Total Sales",
-      value: cards ? `$${cards.totalRevenue.toLocaleString()}` : "—",
-      change: cards ? `${cards.revenueChange >= 0 ? "+" : ""}${cards.revenueChange}%` : "—",
-      trend: (cards?.revenueChange ?? 0) >= 0 ? ("up" as const) : ("down" as const),
+      value: cards ? formatEGP(cards.totalRevenue) : "—",
+      change: cards
+        ? `${cards.revenueChange >= 0 ? "+" : ""}${cards.revenueChange}%`
+        : "—",
+      trend:
+        (cards?.revenueChange ?? 0) >= 0 ? ("up" as const) : ("down" as const),
       icon: DollarSign,
       description: "vs last month",
     },
@@ -46,8 +62,11 @@ export default function Cards() {
       id: "total-orders",
       title: "Total Orders",
       value: cards ? cards.totalOrders.toLocaleString() : "—",
-      change: cards ? `${cards.ordersChange >= 0 ? "+" : ""}${cards.ordersChange}%` : "—",
-      trend: (cards?.ordersChange ?? 0) >= 0 ? ("up" as const) : ("down" as const),
+      change: cards
+        ? `${cards.ordersChange >= 0 ? "+" : ""}${cards.ordersChange}%`
+        : "—",
+      trend:
+        (cards?.ordersChange ?? 0) >= 0 ? ("up" as const) : ("down" as const),
       icon: ShoppingCart,
       description: "vs last month",
     },

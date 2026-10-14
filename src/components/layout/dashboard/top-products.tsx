@@ -114,7 +114,7 @@ export default function TopProducts() {
                           </div>
                           {p && (
                             <div className="text-muted-foreground">
-                              ${p.revenue.toLocaleString()} revenue
+                              {p.revenue.toLocaleString()} EGP revenue
                             </div>
                           )}
                         </>
@@ -139,8 +139,8 @@ export default function TopProducts() {
             <TrendingUp className="h-4 w-4" />
           </div>
           <div className="leading-none text-muted-foreground">
-            {totalSold.toLocaleString()} units · $
-            {totalRevenue.toLocaleString()} revenue across top products
+            {totalSold.toLocaleString()} units ·{" "}
+            {totalRevenue.toLocaleString()} EGP revenue across top products
           </div>
         </CardFooter>
       )}

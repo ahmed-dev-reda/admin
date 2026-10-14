@@ -28,7 +28,7 @@ type Discount = {
 
 function formatAmount(amount: string, type: string) {
   const n = parseFloat(amount);
-  return type === "PERCENTAGE" ? `${n}%` : `$${n.toFixed(2)}`;
+  return type === "PERCENTAGE" ? `${n}%` : `${n.toFixed(2)} EGP`;
 }
 
 function DiscountStatus({

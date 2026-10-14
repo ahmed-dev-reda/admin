@@ -137,7 +137,7 @@ export default function OrdersPage() {
                   {sale.items.reduce((sum, item) => sum + item.quantity, 0)}
                 </TableCell>
                 <TableCell className="text-right font-mono tabular-nums">
-                  ${sale.total.toFixed(2)}
+                  {sale.total.toFixed(2)} EGP
                 </TableCell>
                 <TableCell className="pr-6 text-right">
                   <Badge variant={statusVariant(sale.status)} className="gap-1.5">

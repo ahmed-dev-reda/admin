@@ -90,7 +90,7 @@ export default function RecentOrders() {
 
   const recentOrders = orders.map((o) => ({
     ...o,
-    total: `$${Number(o.total).toFixed(2)}`,
+    total: `${Number(o.total).toFixed(2)} EGP`,
     date: new Date(o.date).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",

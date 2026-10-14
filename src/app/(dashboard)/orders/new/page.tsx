@@ -198,7 +198,7 @@ export default function NewOrderPage() {
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{line.product.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          ${line.product.price.toFixed(2)} · stock: {line.product.quantity}
+                          {line.product.price.toFixed(2)} EGP · stock: {line.product.quantity}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -222,7 +222,7 @@ export default function NewOrderPage() {
                           </button>
                         </div>
                         <span className="w-20 text-right text-sm font-semibold tabular-nums">
-                          ${(line.product.price * line.quantity).toFixed(2)}
+                          {(line.product.price * line.quantity).toFixed(2)} EGP
                         </span>
                         <Button
                           type="button"
@@ -256,7 +256,7 @@ export default function NewOrderPage() {
                           onClick={() => addProduct(p)}
                         >
                           <Plus className="mr-1 size-3" />
-                          {p.name} (${p.price.toFixed(2)})
+                          {p.name} ({p.price.toFixed(2)} EGP)
                         </Button>
                       ))}
                   </div>
@@ -324,7 +324,7 @@ export default function NewOrderPage() {
 
               <div className="flex items-center justify-between border-t pt-4">
                 <span className="text-sm font-medium">Total</span>
-                <span className="text-xl font-bold tabular-nums">${total.toFixed(2)}</span>
+                <span className="text-xl font-bold tabular-nums">{total.toFixed(2)} EGP</span>
               </div>
 
               {error && <p className="text-sm text-destructive">{error}</p>}
