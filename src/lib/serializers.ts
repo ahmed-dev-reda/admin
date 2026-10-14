@@ -63,6 +63,7 @@ export function serializeSale(
   return {
     id: sale.id,
     status: sale.status,
+    paymentMethod: sale.paymentMethod,
     total: Number(sale.total),
     customer: sale.customer ? serializeCustomer(sale.customer) : null,
     customerId: sale.customerId,

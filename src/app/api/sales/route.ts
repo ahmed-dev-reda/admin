@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await requirePermission("sales");
+    // Any authenticated user (admin or customer) can place an order
+    const user = await requireUser();
     const body = await request.json().catch(() => null);
     const input = parseWith(createSaleSchema, body);
     const sale = await createSale({ ...input, userId: user.id });

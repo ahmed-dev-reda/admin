@@ -58,6 +58,7 @@ export const createSaleSchema = z.object({
   customerEmail: z.string().trim().email().optional(),
   customerName: z.string().trim().min(1).optional(),
   status: z.enum(SALE_STATUSES).default("PENDING"),
+  paymentMethod: z.enum(["visa", "cod"]).default("cod"),
   items: z
     .array(
       z.object({

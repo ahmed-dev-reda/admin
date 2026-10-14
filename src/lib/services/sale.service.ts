@@ -81,6 +81,7 @@ export async function createSale(input: {
   customerEmail?: string;
   customerName?: string;
   status: string;
+  paymentMethod?: string;
   items: { productId: string; quantity: number }[];
   userId: string;
 }) {
@@ -143,6 +144,7 @@ export async function createSale(input: {
         customerId,
         userId: input.userId,
         status: input.status,
+        paymentMethod: input.paymentMethod ?? null,
         total,
         items: { create: saleItemsData },
       },
