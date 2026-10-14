@@ -6,7 +6,6 @@ import {
   Users,
   Star,
   BadgePercent,
-  ChartNoAxesCombined,
   Settings,
 } from "lucide-react";
 
@@ -46,11 +45,7 @@ export const sidebarItems = [
     href: "/discounts",
     icon: BadgePercent,
   },
-  {
-    title: "Analytics",
-    href: "/analytics",
-    icon: ChartNoAxesCombined,
-  },
+
   {
     title: "Settings",
     href: "/settings",

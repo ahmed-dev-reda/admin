@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { sidebarItems } from "@/data/sidebar";
 
-import { Plus, Settings } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import { LogoutButton } from "./logout-button";
 import { signOutAction } from "@/actions/auth";
