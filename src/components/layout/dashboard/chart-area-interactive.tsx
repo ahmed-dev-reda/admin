@@ -31,16 +31,13 @@ export const description = "An interactive area chart";
 
 
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  desktop: {
+  revenue: {
     label: "Revenue",
-    color: "blue",
+    color: "var(--chart-revenue)",
   },
-  mobile: {
+  orders: {
     label: "Orders",
-    color: "yellow",
+    color: "var(--chart-orders)",
   },
 } satisfies ChartConfig;
 
@@ -48,25 +45,19 @@ type SalesByDay = { date: string; revenue: number; orders: number };
 
 export default function ChartAreaInteractive() {
   const [timeRange, setTimeRange] = React.useState("90d");
-  const [chartData, setChartData] = React.useState<
-    { date: string; desktop: number; mobile: number }[]
-  >([]);
+  const [chartData, setChartData] = React.useState<SalesByDay[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     fetch("/api/stats", { cache: "no-store" })
       .then((r) => r.json())
       .then((json) => {
         if (json?.success) {
-          setChartData(
-            (json.data.salesByDay as SalesByDay[]).map((d) => ({
-              date: d.date,
-              desktop: d.revenue,
-              mobile: d.orders,
-            })),
-          );
+          setChartData(json.data.salesByDay as SalesByDay[]);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
   }, []);
 
   const filteredData = chartData.filter((item) => {
@@ -113,7 +104,11 @@ export default function ChartAreaInteractive() {
         </Select>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        {filteredData.length === 0 ? (
+        {isLoading ? (
+          <div className="flex h-62.5 w-full items-center justify-center">
+            <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        ) : filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
             <div className="rounded-full bg-muted p-4">
               <TrendingUp className="size-8 text-muted-foreground" />
@@ -129,29 +124,28 @@ export default function ChartAreaInteractive() {
             className="aspect-auto h-62.5 w-full"
           >
             <AreaChart data={filteredData}>
-              <LineChart accessibilityLayer />
               <defs>
-                <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
-                    stopColor="var(--color-desktop)"
+                    stopColor="var(--color-revenue)"
                     stopOpacity={0.8}
                   />
                   <stop
                     offset="95%"
-                    stopColor="var(--color-desktop)"
+                    stopColor="var(--color-revenue)"
                     stopOpacity={0.1}
                   />
                 </linearGradient>
-                <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="fillOrders" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
-                    stopColor="var(--color-mobile)"
+                    stopColor="var(--color-orders)"
                     stopOpacity={0.8}
                   />
                   <stop
                     offset="95%"
-                    stopColor="var(--color-mobile)"
+                    stopColor="var(--color-orders)"
                     stopOpacity={0.1}
                   />
                 </linearGradient>
@@ -186,17 +180,17 @@ export default function ChartAreaInteractive() {
                 }
               />
               <Area
-                dataKey="mobile"
+                dataKey="orders"
                 type="natural"
-                fill="url(#fillMobile)"
-                stroke="var(--color-mobile)"
+                fill="url(#fillOrders)"
+                stroke="var(--color-orders)"
                 stackId="a"
               />
               <Area
-                dataKey="desktop"
+                dataKey="revenue"
                 type="natural"
-                fill="url(#fillDesktop)"
-                stroke="var(--color-desktop)"
+                fill="url(#fillRevenue)"
+                stroke="var(--color-revenue)"
                 stackId="a"
               />
               <ChartLegend content={<ChartLegendContent />} />

@@ -19,6 +19,7 @@ export async function getDashboardStats() {
     topProducts,
     recentOrders,
     salesByStatus,
+    revenueByCategory,
   ] = await Promise.all([
     prisma.sale.aggregate({ _sum: { total: true }, where: { status: { not: "CANCELLED" } } }),
     prisma.sale.aggregate({
@@ -66,6 +67,16 @@ export async function getDashboardStats() {
       include: { customer: true },
     }),
     prisma.sale.groupBy({ by: ["status"], _count: { _all: true } }),
+    prisma.$queryRaw<{ name: string; revenue: number; orders: bigint }[]>`
+      SELECT c."name" AS name,
+             COALESCE(SUM(si."subtotal"), 0)::float AS revenue,
+             COUNT(DISTINCT si."saleId")::bigint AS orders
+      FROM "SaleItem" si
+      JOIN "Product" p ON p."id" = si."productId"
+      JOIN "Category" c ON c."id" = p."categoryId"
+      GROUP BY c."name"
+      ORDER BY revenue DESC
+    `,
   ]);
 
   const pct = (current: number, previous: number) => {
@@ -102,6 +113,11 @@ export async function getDashboardStats() {
     salesByStatus: salesByStatus.map((s) => ({
       status: s.status,
       count: s._count._all,
+    })),
+    revenueByCategory: revenueByCategory.map((c) => ({
+      name: c.name,
+      revenue: Number(c.revenue),
+      orders: Number(c.orders),
     })),
     recentOrders: recentOrders.map((o) => ({
       id: o.id,
