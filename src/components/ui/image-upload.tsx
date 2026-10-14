@@ -6,8 +6,9 @@ import { Upload, X, ImageIcon } from "lucide-react";
 
 type ImageUploadProps = {
   id?: string;
-  value?: File | null;
-  onChange?: (file: File | null) => void;
+  /** New file upload, existing image URL, or null */
+  value?: File | string | null;
+  onChange?: (file: File | string | null) => void;
   className?: string;
   disabled?: boolean;
   "aria-invalid"?: boolean;
@@ -24,21 +25,23 @@ function ImageUpload({
   const [isDragOver, setIsDragOver] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const preview = React.useMemo(
-    () => (value ? URL.createObjectURL(value) : null),
+  const filePreview = React.useMemo(
+    () => (value instanceof File ? URL.createObjectURL(value) : null),
     [value],
   );
   React.useEffect(() => {
     return () => {
-      if (preview) URL.revokeObjectURL(preview);
+      if (filePreview) URL.revokeObjectURL(filePreview);
     };
-  }, [preview]);
+  }, [filePreview]);
 
-  const previewUrl = value ? preview : null;
+  // Existing URL strings are used directly; Files get an object URL
+  const previewUrl =
+    typeof value === "string" ? value : value instanceof File ? filePreview : null;
 
-  const handleFile = (file: File | null) => {
+  const handleFile = (file: File | string | null) => {
     if (disabled) return;
-    if (file && !file.type.startsWith("image/")) return;
+    if (file instanceof File && !file.type.startsWith("image/")) return;
     onChange?.(file);
   };
 

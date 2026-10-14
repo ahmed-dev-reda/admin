@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { Save, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -15,6 +16,7 @@ type Product = {
   category: { id: string; name: string } | null;
   price: number;
   quantity: number;
+  imageUrl: string | null;
   status: string;
 };
 
@@ -22,20 +24,44 @@ export default function EditProductForm({ product }: { product: Product }) {
   const router = useRouter();
   const [error, setError] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [image, setImage] = React.useState<File | string | null>(
+    product.imageUrl,
+  );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
     const form = new FormData(e.currentTarget);
-    const body = {
-      name: form.get("name"),
-      description: form.get("description"),
-      category: form.get("category"),
-      price: Number(form.get("price")),
-      quantity: Number(form.get("quantity")),
-    };
     try {
+      // Upload a newly selected file first; keep/remove existing URL otherwise
+      let imageUrl: string | null = null;
+      if (image instanceof File) {
+        const uploadData = new FormData();
+        uploadData.append("file", image);
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadData,
+        });
+        const uploadJson = await uploadRes.json().catch(() => null);
+        if (!uploadRes.ok || !uploadJson?.success) {
+          throw new Error(
+            uploadJson?.error?.message ?? "Failed to upload image",
+          );
+        }
+        imageUrl = uploadJson.data.url;
+      } else if (typeof image === "string") {
+        imageUrl = image;
+      }
+
+      const body = {
+        name: form.get("name"),
+        description: form.get("description"),
+        category: form.get("category"),
+        price: Number(form.get("price")),
+        quantity: Number(form.get("quantity")),
+        imageUrl,
+      };
       const res = await fetch(`/api/products/${product.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -80,6 +106,16 @@ export default function EditProductForm({ product }: { product: Product }) {
           <label htmlFor="quantity" className="text-sm font-medium">Quantity</label>
           <Input id="quantity" name="quantity" type="number" min="0" defaultValue={product.quantity} placeholder="Enter quantity" required />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="image" className="text-sm font-medium">Product Image</label>
+        <ImageUpload
+          id="image"
+          value={image}
+          onChange={setImage}
+          disabled={isSubmitting}
+        />
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}

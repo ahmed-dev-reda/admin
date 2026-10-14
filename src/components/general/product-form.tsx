@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowLeft, Loader2, CheckCircle2, Package } from "lucide-react";
+import { Loader2, CheckCircle2, Package } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -417,7 +417,9 @@ export default function AddProductPage() {
                       id="productImage"
                       value={image}
                       onChange={(file) => {
-                        setImage(file);
+                        if (file === null || file instanceof File) {
+                          setImage(file);
+                        }
                         clearError("image");
                       }}
                       aria-invalid={!!errors.image}

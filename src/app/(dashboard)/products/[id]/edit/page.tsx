@@ -52,6 +52,7 @@ export default async function EditProduct({
           category: product.category,
           price: product.price,
           quantity: product.quantity,
+          imageUrl: product.imageUrl,
           status: product.status,
         }}
       />
