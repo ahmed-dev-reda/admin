@@ -151,27 +151,33 @@ export async function createSale(input: {
       include: { customer: true, items: { include: { product: true } } },
     });
 
-    // decrement stock + record movements
-    for (const item of input.items) {
-      const updated = await tx.product.updateMany({
-        where: { id: item.productId, quantity: { gte: item.quantity } },
-        data: { quantity: { decrement: item.quantity } },
-      });
-      if (updated.count !== 1) {
-        throw new ApiError(409, "INSUFFICIENT_STOCK", "Insufficient stock");
-      }
-      await tx.stockMovement.create({
-        data: {
-          productId: item.productId,
-          type: "OUT",
-          quantity: item.quantity,
-          reason: `Sale ${sale.id}`,
-        },
-      });
-    }
+    // decrement stock + record movements in parallel — each update is
+    // guarded by quantity >= ordered so concurrent orders can't oversell
+    await Promise.all(
+      input.items.map(async (item) => {
+        const updated = await tx.product.updateMany({
+          where: { id: item.productId, quantity: { gte: item.quantity } },
+          data: { quantity: { decrement: item.quantity } },
+        });
+        if (updated.count !== 1) {
+          throw new ApiError(409, "INSUFFICIENT_STOCK", "Insufficient stock");
+        }
+        await tx.stockMovement.create({
+          data: {
+            productId: item.productId,
+            type: "OUT",
+            quantity: item.quantity,
+            reason: `Sale ${sale.id}`,
+          },
+        });
+      }),
+    );
 
     return serializeSale(sale);
-  });
+    },
+    // Neon serverless latency needs a longer window than the 5s default
+    { timeout: 20000, maxWait: 10000 },
+  );
 }
 
 export async function createStockMovement(input: {
