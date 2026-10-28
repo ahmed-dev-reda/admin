@@ -25,12 +25,10 @@ export default function DashboardPage() {
       <ChartAreaInteractive />
 
       {/* ── Bottom Grid: Recent Orders + Top Products ───────────────────── */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Suspense fallback={<p>Loading ...</p>}>
-          <RecentOrders />
-          <TopProducts />
-        </Suspense>
-      </div>
+
+      <Suspense fallback={<p>Loading ...</p>}>
+        <RecentOrders />
+      </Suspense>
     </section>
   );
 }
