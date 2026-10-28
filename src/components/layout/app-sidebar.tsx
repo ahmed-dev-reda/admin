@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Sidebar,
   SidebarContent,
@@ -10,22 +12,36 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { sidebarItems } from "@/data/sidebar";
 
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { LogoutButton } from "./logout-button";
 import { signOutAction } from "@/actions/auth";
 
 export function AppSidebar() {
+  const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const closeMobileSidebar = () => {
+    if (isMobile) setOpenMobile(false);
+  };
+
+  useEffect(() => {
+    setOpenMobile(false);
+  }, [pathname, setOpenMobile]);
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/">
+              <Link href="/" onClick={closeMobileSidebar}>
                 <span>Admin Panel</span>
               </Link>
             </SidebarMenuButton>
@@ -39,7 +55,7 @@ export function AppSidebar() {
               {sidebarItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item.href}>
+                    <Link href={item.href} onClick={closeMobileSidebar}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>
@@ -58,7 +74,7 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href="/products/new">
+                  <Link href="/products/new" onClick={closeMobileSidebar}>
                     <Plus />
                     <span>Add Product</span>
                   </Link>
